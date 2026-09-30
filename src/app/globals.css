@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --ink: #0f1417;
+  --ink-rgb: 15 20 23;
+  --bg: #ebebed;
+  --card: #ffffff;
+  --primary: #6045f4;
+  --accent: #53e6d4;
+  --alert: #ff5a4e;
+  --on-primary: #ffffff;
+  --series-1: #6045f4;
+  --alert-ink: #b3261e;
+  --series-2: #17a897;
+  --muted: rgb(var(--ink-rgb) / 0.6);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-sm: 2px 2px 0 var(--ink);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #ebebed;
+    --ink-rgb: 235 235 237;
+    --bg: #0f1417;
+    --card: #1a2024;
+    --series-1: #8b77ff;
+    --alert-ink: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #ebebed;
+  --ink-rgb: 235 235 237;
+  --bg: #0f1417;
+  --card: #1a2024;
+  --series-1: #8b77ff;
+  --alert-ink: #ff8a80;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-alert: var(--alert);
+  --color-alert-ink: var(--alert-ink);
+  --color-muted: var(--muted);
+  --font-display: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --shadow-brutal: var(--shadow);
+  --shadow-brutal-sm: var(--shadow-sm);
+  --ease-out-expo: var(--ease-out);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+@layer components {
+/* ---------- neo-brutal primitives ---------- */
+.brutal {
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.brutal-lift {
+  transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out);
+}
+.brutal-lift:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  padding: 0.55rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out), background 180ms ease;
+  cursor: pointer;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+/* press feedback lands on pointer-down, fast (apple-design §1) */
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); transition-duration: 80ms; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn:focus-visible, .field:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-accent { background: var(--accent); color: #0f1417; }
+.btn-ghost { background: var(--card); color: var(--ink); }
+
+.field {
+  width: 100%;
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.grid-paper {
+  background-color: var(--card);
+  background-image:
+    linear-gradient(to right, rgb(var(--ink-rgb) / 0.07) 1px, transparent 1px),
+    linear-gradient(rgb(var(--ink-rgb) / 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+}
+
+/* ---------- loops (§5.2) ---------- */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+/* one-shot settle instead of an endless slow float (slow loops near 0.2 Hz are a vestibular trigger) */
+@keyframes sticker-in { from { opacity: 0; transform: translateY(-14px) rotate(-4deg); } to { opacity: 1; transform: translateY(0) rotate(6deg); } }
+
+/* dialogs materialize and leave along the same path */
+dialog.brutal {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 200ms var(--ease-out), transform 300ms var(--ease-out), overlay 300ms allow-discrete, display 300ms allow-discrete;
+}
+@starting-style { dialog.brutal[open] { opacity: 0; transform: scale(0.96) translateY(8px); } }
+dialog.brutal:not([open]) { opacity: 0; transform: scale(0.96) translateY(8px); }
+dialog.brutal::backdrop { transition: background-color 200ms ease, overlay 300ms allow-discrete, display 300ms allow-discrete; }
+@starting-style { dialog.brutal[open]::backdrop { background-color: transparent; } }
+
+/* theme switch cross-fades instead of flashing */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 280ms; animation-timing-function: ease; }
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(255 90 78 / 0.45); }
+  50% { box-shadow: 0 0 0 10px rgb(255 90 78 / 0); }
+}
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes twinkle { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.35); } }
+@keyframes dash-flow { to { stroke-dashoffset: -24; } }
+@keyframes echo-2 { from { transform: translate(0, 0); } to { transform: translate(3px, 3px); } }
+@keyframes echo-3 { from { transform: translate(0, 0); } to { transform: translate(6px, 6px); } }
+.echo-2 { transform: translate(3px, 3px); animation: echo-2 700ms var(--ease-out) 150ms both; }
+.echo-3 { transform: translate(6px, 6px); animation: echo-3 700ms var(--ease-out) 250ms both; }
+.echo:hover .echo-2 { transform: translate(2px, 2px); transition: transform 250ms var(--ease-out); }
+.echo:hover .echo-3 { transform: translate(4px, 4px); transition: transform 250ms var(--ease-out); }
+
+.anim-float { animation: sticker-in 700ms var(--ease-out) 300ms both; }
+.anim-pulse-ring { animation: pulse-ring 2s ease-in-out infinite; }
+.anim-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.anim-marquee { animation: marquee 42s linear infinite; }
+.anim-marquee:hover { animation-play-state: paused; }
+.anim-twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+.anim-dash { stroke-dasharray: 6 6; animation: dash-flow 3s linear infinite; }
+.skeleton {
+  background: linear-gradient(90deg, rgb(var(--ink-rgb) / 0.06) 25%, rgb(var(--ink-rgb) / 0.14) 50%, rgb(var(--ink-rgb) / 0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
