@@ -1,0 +1,25 @@
+// Every tunable number the engine uses. Change here, nowhere else.
+export const THRESHOLDS = {
+  weights: {
+    goals: 0.25,
+    projects: 0.15,
+    deliverables: 0.15,
+    peer: 0.15,
+    impact: 0.15,
+    training: 0.1,
+    attendance: 0.05,
+  },
+  lateDeliveryFactor: 0.7,
+  minRatingsPerManager: 4,
+  lenientResidual: 0.5,
+  strictResidual: -0.5,
+  inconsistentSpreadMultiple: 1.5,
+  inconsistentMinCorrelation: 0.3,
+  inconsistentMinSpread: 0.5,
+  inconsistentFlaggedShare: 0.4,
+  contradictionResidual: 1.5,
+  promotionEvidenceScore: 75,
+  promotionCycles: 2,
+  careerOverlap: 0.7,
+  skillFeedbackBlend: 0.3,
+} as const;
