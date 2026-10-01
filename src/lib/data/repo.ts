@@ -172,20 +172,3 @@ export function coworkers(viewer: UserRow) {
 
 /** Local calendar date (the server runs in the org's timezone), not the UTC date. */
 export const todayISO = () => new Date().toLocaleDateString("en-CA");
-
-export function openPunch(userId: number) {
-  return store.punches.find((p) => p.userId === userId && p.outAt === null) ?? null;
-}
-
-export function lastPunch(userId: number) {
-  return store.punches.filter((p) => p.userId === userId).sort((a, b) => (b.outAt ?? b.inAt).localeCompare(a.outAt ?? a.inAt))[0] ?? null;
-}
-
-/** Hours worked in the 7 days up to today, from closed punches. */
-export function hoursThisWeek(userId: number) {
-  const since = Date.now() - 7 * 864e5;
-  const ms = store.punches
-    .filter((p) => p.userId === userId && p.outAt && new Date(p.inAt).getTime() >= since)
-    .reduce((a, p) => a + (new Date(p.outAt!).getTime() - new Date(p.inAt).getTime()), 0);
-  return Math.round((ms / 36e5) * 10) / 10;
-}
