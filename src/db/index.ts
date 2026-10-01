@@ -1,6 +1,6 @@
 import * as schema from "./schema";
 
-// Neon (or any Postgres) when DATABASE_URL is set; embedded PGlite in .pglite/ otherwise,
+// Supabase Postgres when DATABASE_URL is set; embedded PGlite in .pglite/ otherwise,
 // so local dev needs no accounts.
 function create() {
   const url = process.env.DATABASE_URL;
