@@ -9,6 +9,7 @@ import {
   recommendations,
   requirements,
   skillGaps,
+  THRESHOLDS,
   type EvidenceRef,
   type EvidenceScore,
 } from "../engine";
@@ -78,6 +79,15 @@ export function calibration(cycleId = activeCycle().id) {
     cases: results.map((r) => ({ ...r, user: getUser(r.userId)!, manager: getUser(r.managerId)! })),
     managers: managers.sort((a, b) => a.manager.name.localeCompare(b.manager.name)),
   };
+}
+
+/** Expected-rating curve sampled across the evidence range, ±the contradiction threshold, for the scatter's shaded band. */
+export function ratingBand(cases: { evidence: number; expected: number }[]) {
+  const sorted = [...cases].sort((a, b) => a.evidence - b.evidence);
+  return [35, 45, 55, 65, 75, 85, 95].map((x) => {
+    const near = sorted.reduce((best, c) => (Math.abs(c.evidence - x) < Math.abs(best.evidence - x) ? c : best), sorted[0]);
+    return { x, lo: near.expected - THRESHOLDS.contradictionResidual, hi: near.expected + THRESHOLDS.contradictionResidual };
+  });
 }
 
 export function profile(userId: number) {
