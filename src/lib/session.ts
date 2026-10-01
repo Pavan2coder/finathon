@@ -31,9 +31,10 @@ export async function clearSession() {
 
 /** Every page and action resolves the viewer first, so this is where the DB is loaded and changes are saved. */
 export async function getViewer(): Promise<UserRow | null> {
+  // cookies() first: it opts the route out of build-time prerendering, so no DB query runs during `next build`.
+  const uid = verify((await cookies()).get(SESSION_COOKIE)?.value);
   await ready();
   after(sync);
-  const uid = verify((await cookies()).get(SESSION_COOKIE)?.value);
   return uid ? getUser(uid) : null;
 }
 
