@@ -4,7 +4,9 @@ import { db, schema as s } from "@/db";
 import type { Dataset } from "./generate";
 import { store } from "./repo";
 
-type Key = Exclude<keyof Dataset, "planted">;
+// ponytail: punches, workUpdates, leaves, messages, emails and tickets have no tables yet, so they live in memory
+// and reset on restart. Add tables to schema.ts, list them here, and they persist.
+type Key = Extract<keyof Dataset, "users" | "cycles" | "goals" | "projects" | "members" | "deliverables" | "feedback" | "requests" | "trainings" | "attendance" | "impact" | "ratings" | "matrix" | "devItems" | "events" | "audit" | "tasks" | "posts" | "notes">;
 
 const TABLES: Record<Key, PgTable> = {
   users: s.users, cycles: s.cycles, goals: s.goals, projects: s.projects, members: s.projectMembers,

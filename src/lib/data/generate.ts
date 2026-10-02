@@ -21,16 +21,26 @@ export interface DevItemRow { id: number; userId: number; kind: "training" | "st
 export interface EventRow { id: number; title: string; date: string; kind: "deadline" | "calibration" | "holiday" }
 export interface AuditRow { id: number; entity: string; entityId: number; field: string; oldValue: string | null; newValue: string | null; reason: string; actorId: number; at: string }
 
+export interface PunchRow { id: number; userId: number; inAt: string; outAt: string | null; photo: string | null }
+export interface WorkUpdateRow { id: number; userId: number; date: string; text: string }
 export interface TaskRow { id: number; title: string; assigneeId: number; creatorId: number; due: string; priority: "low" | "medium" | "high" | "critical"; notes: string; status: "open" | "done"; kind: "task" | "stretch" }
+export type LeaveType = "casual" | "sick" | "vacation" | "wfh";
+export interface LeaveRow { id: number; userId: number; type: LeaveType; from: string; to: string; reason: string; status: "pending" | "approved" | "rejected"; decidedBy: number | null; at: string }
+export interface MessageRow { id: number; fromId: number; toId: number; text: string; at: string }
+export interface EmailRow { id: number; threadId: number; fromId: number; to: number[]; cc: number[]; tags: number[]; subject: string; body: string; at: string }
 export interface PostRow { id: number; authorId: number; recipientId: number; skills: string[]; content: string; status: "draft" | "scheduled" | "published"; scheduledAt: string | null; at: string; cheers: number[] }
+export interface TicketRow { id: number; userId: number; subject: string; body: string; status: "open" | "resolved"; at: string }
 export interface NoteRow { id: number; subjectId: number; authorId: number; kind: "note" | "activity"; title: string; details: string; at: string }
+
+export const LEAVE_ALLOWANCE: Record<LeaveType, number> = { casual: 12, sick: 10, vacation: 15, wfh: 24 };
 
 export interface Dataset {
   users: UserRow[]; cycles: CycleRow[]; goals: GoalRow[]; projects: ProjectRow[]; members: MemberRow[];
   deliverables: DeliverableRow[]; feedback: FeedbackRow[]; requests: RequestRow[]; trainings: TrainingRow[];
   attendance: AttendanceRow[]; impact: ImpactRow[]; ratings: RatingRow[]; matrix: MatrixRow[];
   devItems: DevItemRow[]; events: EventRow[]; audit: AuditRow[];
-  tasks: TaskRow[]; posts: PostRow[]; notes: NoteRow[];
+  punches: PunchRow[]; workUpdates: WorkUpdateRow[]; tasks: TaskRow[]; leaves: LeaveRow[]; messages: MessageRow[];
+  emails: EmailRow[]; posts: PostRow[]; tickets: TicketRow[]; notes: NoteRow[];
   /** Ground truth for seed-check: what the engine must find. */
   planted: { lenient: number[]; strict: number[]; inconsistent: number[]; contradictions: number[] };
 }
@@ -311,6 +321,19 @@ export function generate(): Dataset {
 
   // ---- workspace data (Aczen pages). Drawn after the evidence so planted calibration results never move. ----
   const staff = users.filter((u) => u.role !== "hr");
+  const punches: PunchRow[] = [];
+  const workUpdates: WorkUpdateRow[] = [];
+  let pid = 1, wid = 1;
+  const UPDATE_TEXT = ["Closed out review comments and merged the fix", "Paired on the migration plan; drafted rollout steps", "Customer call notes written up and shared", "Finished the spec draft; waiting on design", "Cleared the defect backlog for the sprint"];
+  for (const u of staff)
+    for (let day = 21; day <= 30; day++) {
+      const dt = new Date(2026, 8, day);
+      if (dt.getDay() === 0 || dt.getDay() === 6 || rand() < 0.05) continue;
+      const inH = 9 + Math.floor(rand() * 2), inM = Math.floor(rand() * 50);
+      punches.push({ id: pid++, userId: u.id, inAt: `${d(2026, 9, day)}T${String(inH).padStart(2, "0")}:${String(inM).padStart(2, "0")}:00`, outAt: `${d(2026, 9, day)}T${17 + Math.floor(rand() * 2)}:${String(Math.floor(rand() * 59)).padStart(2, "0")}:00`, photo: null });
+      if (rand() < 0.6) workUpdates.push({ id: wid++, userId: u.id, date: d(2026, 9, day), text: pick(UPDATE_TEXT) });
+    }
+
   const tasks: TaskRow[] = [];
   let tid = 1;
   const TASKS = ["Review Q3 goal progress", "Draft self-review", "Prepare calibration notes", "Update onboarding doc", "Pair on design review", "Shadow incident retro"];
@@ -323,7 +346,33 @@ export function generate(): Dataset {
     tasks.push({ id: tid++, title: di.title, assigneeId: di.userId, creatorId: owner.managerId ?? di.userId, due: di.due, priority: "medium", notes: `Stretch assignment for ${di.skill}`, status: "open", kind: "stretch" });
   }
 
+  const leaves: LeaveRow[] = [];
+  let lid = 1;
+  const REASONS = ["Family function", "Fever", "Travel home", "Personal work", "Doctor visit"];
+  for (const u of staff)
+    if (rand() < 0.5)
+      for (let k = 0; k < 1 + Math.floor(rand() * 2); k++) {
+        const type = pick(["casual", "sick", "vacation", "wfh"] as const);
+        const day = 1 + Math.floor(rand() * 26);
+        const len = type === "vacation" ? 3 : 1;
+        const status = rand() < 0.2 ? "pending" : rand() < 0.9 ? "approved" : "rejected";
+        leaves.push({ id: lid++, userId: u.id, type, from: d(2026, 9, day), to: d(2026, 9, Math.min(30, day + len - 1)), reason: pick(REASONS), status, decidedBy: status === "pending" ? null : u.managerId, at: `${d(2026, 9, Math.max(1, day - 3))}T09:00:00Z` });
+      }
+
+  const messages: MessageRow[] = [];
+  let mid2 = 1;
   const ravi = managers[0].id;
+  const convo: [number, number, string][] = [
+    [ravi, priyaId, "Nice work on the billing retry flow — can you log it as evidence?"],
+    [priyaId, ravi, "Done, logged it this morning. Want me to take the design review next sprint?"],
+    [ravi, priyaId, "Yes, that closes your System Design gap. I'll add it as a stretch assignment."],
+  ];
+  convo.forEach(([f, t, text], i) => messages.push({ id: mid2++, fromId: f, toId: t, text, at: `2026-09-30T1${i}:15:00Z` }));
+
+  const emails: EmailRow[] = [
+    { id: 1, threadId: 1, fromId: 1, to: staff.map((u) => u.id), cc: [], tags: [], subject: "H2 2026 review cycle is open", body: "Self-reviews are due 9 Oct and peer feedback closes 16 Oct. Log your evidence as you go — ratings are checked against it at calibration.", at: "2026-09-25T09:00:00Z" },
+    { id: 2, threadId: 2, fromId: ravi, to: [priyaId], cc: [1], tags: [], subject: "Your path to Staff Engineer", body: "Priya, the profile shows System Design and Mentoring as the two gaps. Let's plan both into this half.", at: "2026-09-28T11:30:00Z" },
+  ];
 
   const posts: PostRow[] = [];
   let postId = 1;
@@ -335,9 +384,10 @@ export function generate(): Dataset {
     posts.push({ id: postId++, authorId: author.id, recipientId: to.id, skills: [pick(TRACK_SKILLS[to.track] ?? TRACK_SKILLS.Engineering)], content: pick(KUDOS), status: k < 8 ? "published" : "scheduled", scheduledAt: k < 8 ? null : d(2026, 10, 3 + k), at: `${d(2026, 9, 15 + k)}T12:00:00Z`, cheers: [] });
   }
 
+  const tickets: TicketRow[] = [];
   const notes: NoteRow[] = [
     { id: 1, subjectId: priyaId, authorId: ravi, kind: "note", title: "Design review ownership", details: "Agreed Priya leads next sprint's design review to build System Design evidence.", at: "2026-09-29T10:00:00Z" },
   ];
 
-  return { users, cycles, goals, projects, members, deliverables, feedback, requests, trainings, attendance, impact, ratings, matrix, devItems, events, audit, tasks, posts, notes, planted };
+  return { users, cycles, goals, projects, members, deliverables, feedback, requests, trainings, attendance, impact, ratings, matrix, devItems, events, audit, punches, workUpdates, tasks, leaves, messages, emails, posts, tickets, notes, planted };
 }
