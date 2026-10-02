@@ -2,7 +2,11 @@ import { EvidenceScatter } from "@/components/charts";
 import { FlaggedQueue } from "@/components/FlaggedQueue";
 import { RatingStrips } from "@/components/RatingStrips";
 import { Card, CardHead, PageHeader, StatTile } from "@/components/ui";
+<<<<<<< HEAD
 import { activeCycle, calibration } from "@/lib/data/repo";
+=======
+import { activeCycle, calibration, ratingBand } from "@/lib/data/repo";
+>>>>>>> e24f7031eaf7d9bd7b285f5cc523ddbb1f883a8c
 import { THRESHOLDS } from "@/lib/engine";
 import { requireRole } from "@/lib/session";
 
@@ -20,12 +24,16 @@ export default async function CalibrationPage() {
     ratings: cases.filter((c) => c.managerId === m.managerId).map((c) => ({ value: c.rating, flagged: c.flagged, who: c.user.name })),
   }));
 
+<<<<<<< HEAD
   // Expected-rating curve sampled across the evidence range for the shaded band.
   const sorted = [...cases].sort((a, b) => a.evidence - b.evidence);
   const band = [35, 45, 55, 65, 75, 85, 95].map((x) => {
     const near = sorted.reduce((best, c) => (Math.abs(c.evidence - x) < Math.abs(best.evidence - x) ? c : best), sorted[0]);
     return { x, lo: near.expected - THRESHOLDS.contradictionResidual, hi: near.expected + THRESHOLDS.contradictionResidual };
   });
+=======
+  const band = ratingBand(cases);
+>>>>>>> e24f7031eaf7d9bd7b285f5cc523ddbb1f883a8c
   const flagged = scoped.filter((c) => c.flagged);
   const offPattern = managers.filter((m) => m.flags.some((f) => f !== "insufficient_data"));
 

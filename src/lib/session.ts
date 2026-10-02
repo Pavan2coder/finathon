@@ -2,8 +2,10 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { getUser } from "./data/repo";
 import type { UserRow } from "./data/generate";
+import { ready, sync } from "./data/sync";
 
 export const SESSION_COOKIE = "es_session";
 const secret = () => process.env.SESSION_SECRET ?? "dev-only-secret-change-me";
@@ -27,8 +29,12 @@ export async function clearSession() {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
+/** Every page and action resolves the viewer first, so this is where the DB is loaded and changes are saved. */
 export async function getViewer(): Promise<UserRow | null> {
+  // cookies() first: it opts the route out of build-time prerendering, so no DB query runs during `next build`.
   const uid = verify((await cookies()).get(SESSION_COOKIE)?.value);
+  await ready();
+  after(sync);
   return uid ? getUser(uid) : null;
 }
 

@@ -87,7 +87,7 @@ export const feedbackRequests = pgTable("feedback_requests", {
   reviewerId: integer("reviewer_id").notNull(),
   cycleId: integer("cycle_id").notNull(),
   status: requestStatusEnum("status").notNull().default("not_sent"),
-  sentAt: timestamp("sent_at"),
+  sentAt: timestamp("sent_at", { mode: "string", withTimezone: true }),
 });
 
 export const trainings = pgTable("trainings", {
@@ -164,7 +164,41 @@ export const auditLog = pgTable("audit_log", {
   newValue: text("new_value"),
   reason: text("reason").notNull(),
   actorId: integer("actor_id").notNull(),
-  at: timestamp("at").notNull().defaultNow(),
+  at: timestamp("at", { mode: "string", withTimezone: true }).notNull().defaultNow(),
+});
+
+export const tasks = pgTable("tasks", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  assigneeId: integer("assignee_id").notNull(),
+  creatorId: integer("creator_id").notNull(),
+  due: date("due").notNull(),
+  priority: text("priority", { enum: ["low", "medium", "high", "critical"] }).notNull(),
+  notes: text("notes").notNull(),
+  status: text("status", { enum: ["open", "done"] }).notNull(),
+  kind: text("kind", { enum: ["task", "stretch"] }).notNull(),
+});
+
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  authorId: integer("author_id").notNull(),
+  recipientId: integer("recipient_id").notNull(),
+  skills: text("skills").array().notNull(),
+  content: text("content").notNull(),
+  status: text("status", { enum: ["draft", "scheduled", "published"] }).notNull(),
+  scheduledAt: timestamp("scheduled_at", { mode: "string", withTimezone: true }),
+  at: timestamp("at", { mode: "string", withTimezone: true }).notNull(),
+  cheers: integer("cheers").array().notNull(),
+});
+
+export const notes = pgTable("notes", {
+  id: serial("id").primaryKey(),
+  subjectId: integer("subject_id").notNull(),
+  authorId: integer("author_id").notNull(),
+  kind: text("kind", { enum: ["note", "activity"] }).notNull(),
+  title: text("title").notNull(),
+  details: text("details").notNull(),
+  at: timestamp("at", { mode: "string", withTimezone: true }).notNull(),
 });
 
 export type User = typeof users.$inferSelect;

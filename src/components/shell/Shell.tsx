@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  BookOpenCheck, CalendarCheck, CalendarDays, FileUp, GitPullRequestArrow, History, LayoutGrid, LifeBuoy, ListChecks, LogOut,
-  Mail, Megaphone, Menu, MessageSquareQuote, MessagesSquare, Moon, Palmtree, Scale, Sparkles, Sun, Target, UserRound, Users, X,
+  BookOpenCheck, CalendarCheck, CalendarDays, GitPullRequestArrow, History, LayoutGrid, ListChecks, LogOut,
+  Megaphone, Menu, MessageSquareQuote, Moon, Scale, Sparkles, Sun, Target, UserRound, Users, X,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export interface ShellViewer {
   title: string;
 }
 
-type NavItem = { href: string | ((v: ShellViewer) => string); label: string; icon: typeof LayoutGrid; roles: Role[]; badge?: "flags" | "requests" | "leaves" };
+type NavItem = { href: string | ((v: ShellViewer) => string); label: string; icon: typeof LayoutGrid; roles: Role[]; badge?: "flags" | "requests" };
 const ALL: Role[] = ["employee", "manager", "hr"];
 
 // Aczen Connect's order, pointed at HR work; HRM-05 modules grouped underneath.
@@ -36,11 +36,6 @@ const NAV: { group: string; items: NavItem[] }[] = [
       { href: "/assignments", label: "Assignments", icon: ListChecks, roles: ALL },
       { href: "/my-calendar", label: "My calendar", icon: CalendarCheck, roles: ALL },
       { href: "/calendar", label: "Company", icon: CalendarDays, roles: ALL },
-      { href: "/leaves", label: "Leaves", icon: Palmtree, roles: ALL, badge: "leaves" },
-      { href: "/chat", label: "Chat", icon: MessagesSquare, roles: ALL },
-      { href: "/email", label: "Email", icon: Mail, roles: ALL },
-      { href: "/import", label: "Uploads", icon: FileUp, roles: ["hr"] },
-      { href: "/support", label: "Support", icon: LifeBuoy, roles: ALL },
     ],
   },
   {
@@ -88,7 +83,7 @@ const SHEET_SPRING = { type: "spring", bounce: 0.15, duration: 0.35 } as const;
 /** Apple's momentum projection: where a flick at `v` px/s would come to rest. */
 const project = (v: number, rate = 0.998) => ((v / 1000) * rate) / (1 - rate);
 
-export function Shell({ viewer, badges, children }: { viewer: ShellViewer; badges: { flags: number; requests: number; leaves: number }; children: React.ReactNode }) {
+export function Shell({ viewer, badges, children }: { viewer: ShellViewer; badges: { flags: number; requests: number }; children: React.ReactNode }) {
   const pathname = usePathname();
   const reduce = useReducedMotion();
   const [switching, startSwitch] = useTransition();

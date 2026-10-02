@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+<<<<<<< HEAD
 import { coworkers, getUser, openPunch, store, todayISO } from "@/lib/data/repo";
 import { requireRole } from "@/lib/session";
 import type { FormState } from "../actions";
@@ -52,6 +53,12 @@ export async function submitWorkUpdate(_prev: FormState, formData: FormData): Pr
   return { ok: existing ? "Today's update was replaced." : "Update submitted for today." };
 }
 
+=======
+import { coworkers, getUser, store } from "@/lib/data/repo";
+import { requireRole } from "@/lib/session";
+import type { FormState } from "../actions";
+
+>>>>>>> e24f7031eaf7d9bd7b285f5cc523ddbb1f883a8c
 // ---- tasks ----
 const Task = z.object({
   title: z.string().trim().min(3, "Give the task a title."),
