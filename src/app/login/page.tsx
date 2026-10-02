@@ -1,5 +1,6 @@
 import { EchoLogo } from "@/components/EchoLogo";
 import { signInAs } from "./actions";
+import { LoginForm } from "./LoginForm";
 
 const SOURCES = ["Goals", "Project outcomes", "Deliverables", "Peer feedback", "Manager feedback", "Skill development", "Attendance", "Training", "Business impact"];
 
@@ -33,8 +34,14 @@ export default function LoginPage() {
 
         <section className="flex flex-col justify-center gap-5 bg-bg p-6 sm:p-10 lg:p-14">
           <div>
-            <h2 className="font-display text-4xl">Sign in to the demo</h2>
-            <p className="mt-2 text-muted">Pick a person. Each one sees a different slice of the same data.</p>
+            <h2 className="font-display text-4xl">Sign in</h2>
+            <p className="mt-2 text-muted">Use your work email. Demo password: <span className="font-mono">evalsense</span></p>
+          </div>
+          <LoginForm />
+          <div className="flex items-center gap-3 text-muted" role="separator">
+            <span className="h-[2px] flex-1 bg-ink/20" />
+            <span className="label">or pick a demo person</span>
+            <span className="h-[2px] flex-1 bg-ink/20" />
           </div>
           {PEOPLE.map((p) => (
             <form key={p.role} action={signInAs}>
