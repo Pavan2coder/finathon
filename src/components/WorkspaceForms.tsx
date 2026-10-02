@@ -1,11 +1,38 @@
 "use client";
 
 import { useSubmit } from "@/lib/useSubmit";
-import { Plus } from "lucide-react";
+import { FileText, Plus, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { FormState } from "@/app/(app)/actions";
-import { createTask } from "@/app/(app)/workspace/actions";
+import { createTask, submitWorkUpdate } from "@/app/(app)/workspace/actions";
 import { Modal } from "./Modal";
+
+export function WorkUpdateCard({ today, last }: { today: string; last: { date: string; text: string } | null }) {
+  const [state, onSubmit, pending] = useSubmit<FormState>(submitWorkUpdate);
+  return (
+    <section className="brutal flex flex-col p-5">
+      <h2 className="flex items-center gap-2 font-display text-2xl"><FileText size={20} className="text-primary" /> Work update</h2>
+      <p className="mt-1 text-sm text-muted">{new Date(today + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+      <form onSubmit={onSubmit} className="mt-4 space-y-3">
+        <label htmlFor="wu" className="sr-only">What did you work on today?</label>
+        <textarea id="wu" name="text" rows={5} className="field" placeholder="What did you work on today?" aria-invalid={!!state?.fieldErrors?.text} />
+        {state?.fieldErrors?.text && <p className="text-sm text-alert-ink">{state.fieldErrors.text}</p>}
+        <button className="btn btn-primary w-full" disabled={pending}><Send size={16} /> {pending ? "Submitting…" : "Submit update"}</button>
+        {state?.ok && <p role="status" className="rounded-md border-2 border-ink bg-accent px-3 py-2 text-sm text-[#0f1417]">{state.ok}</p>}
+      </form>
+      <div className="mt-5 border-t-2 border-ink/15 pt-3">
+        {last ? (
+          <>
+            <p className="label text-muted">Last update ({last.date})</p>
+            <p className="mt-1">{last.text}</p>
+          </>
+        ) : (
+          <p className="text-sm text-muted">No updates yet. One line a day is enough.</p>
+        )}
+      </div>
+    </section>
+  );
+}
 
 type Person = { id: number; name: string };
 
