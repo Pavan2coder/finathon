@@ -13,7 +13,7 @@ npm run dev
 
 Open http://localhost:3000 and pick a person on the sign-in page.
 
-## Database
+## Databases
 We can Set mongo db or supabase
 Set `DATABASE_URL` to a Supabase Postgres connection string (use the transaction pooler URI, port 6543). On first request an empty database is seeded with the simulated dataset. Without `DATABASE_URL`, the app uses an embedded PGlite database in `.pglite/`.
 
