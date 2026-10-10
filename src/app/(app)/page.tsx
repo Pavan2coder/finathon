@@ -20,7 +20,7 @@ function Hero({ role, eyebrow, headline, sub, name }: { role: keyof typeof HERO;
     <section className={`brutal relative mb-6 overflow-hidden p-6 sm:p-10 ${HERO[role]}`}>
       <p className="label opacity-80">{eyebrow} · {name.split(" ")[0]} · {activeCycle().name} review cycle</p>
       <h1 className="font-display mt-3 max-w-[22ch] text-4xl leading-[0.95] tracking-[-0.02em] sm:text-6xl">{headline}</h1>
-      <p className="mt-4 max-w-[60ch] text-lg leading-relaxed font-light opacity-90">{sub}</p>
+      <p className="mt-4 max-w-[60ch] text-lg leading-relaxed font-light text-pretty opacity-90">{sub}</p>
     </section>
   );
 }
@@ -80,7 +80,7 @@ function ManagerOverview({ viewer }: { viewer: UserRow }) {
         name={viewer.name}
       />
       <div className="mb-6 grid grid-cols-2 gap-4">
-        <StatTile label="Direct reports" value={team.length} />
+        <StatTile label="Direct reports" value={team.length} note="On your team" />
         <StatTile label="Team evidence" value={teamAvg} suffix="avg" note="This cycle" tone="primary" />
       </div>
 
@@ -136,7 +136,7 @@ function HrOverview({ viewer }: { viewer: UserRow }) {
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatTile label="Employees" value={employees.length} note={`${managers} managers`} />
         <StatTile label="Org evidence" value={avg(employees.map(scoreOf))} suffix="avg" note={cycle.name} tone="primary" />
-        <StatTile label="Departments" value={depts.length} />
+        <StatTile label="Departments" value={depts.length} note="With employees this cycle" />
       </div>
 
       <Card paper>
