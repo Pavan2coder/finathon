@@ -1,6 +1,6 @@
 # EvalSense
 
-Evidence over opinion. A performance and promotion app (HRM-05) that puts every rating next to the goals, deliverables and feedback behind it, and flags managers whose scores drift from the evidence.
+Evidence over opinion. A performance app (HRM-05) that scores every employee 0–100 from the goals, deliverables and feedback behind their work. This branch holds the first build: login with role-based access, role dashboards and basic evidence scoring.
 
 Three demo roles, each seeing a different slice of the same data: employee (Priya Sharma), manager (Ravi Kumar) and HR (Elena Rostova).
 

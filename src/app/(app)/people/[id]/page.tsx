@@ -1,15 +1,11 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BrutalBars, TrendChart } from "@/components/charts";
 import { EvidenceClaims, type Claim } from "@/components/EvidenceClaims";
-import { EvidenceFlow } from "@/components/EvidenceFlow";
-import { Card, CardHead, Chip, FlagDot, Initials, Meter } from "@/components/ui";
-import { TITLES } from "@/lib/data/generate";
+import { Card, CardHead, Initials } from "@/components/ui";
 import { canSee, getUser, profile, resolveEvidence, store } from "@/lib/data/repo";
 import type { EvidenceScore } from "@/lib/engine";
 import { requireRole } from "@/lib/session";
 
-const STAGE = { not_ready: "Not ready", developing: "Developing", near_ready: "Near ready", ready: "Ready", promoted: "Promoted" } as const;
 const r1 = (x: number) => Math.round(x * 10) / 10;
 
 function buildClaims(userId: number, cycleId: number, ev: EvidenceScore): Claim[] {
@@ -49,8 +45,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   const p = profile(id);
   const claims = buildClaims(id, p.cycle.id, p.current.evidence);
   const evidence = [...new Set(claims.flatMap((c) => c.refs))].map(resolveEvidence).filter((e) => !!e);
-  const nextTitle = TITLES[user.track]?.[user.level] ?? "top of track";
-  const showCalibration = viewer.role !== "employee" && p.calib;
 
   return (
     <div className="space-y-6">
@@ -63,28 +57,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             {p.manager && <> · Reports to {p.manager.name}</>}
           </p>
         </div>
-        <Chip kind={user.promotionStage === "ready" ? "inconsistent" : "ok"}>{STAGE[user.promotionStage]}</Chip>
       </header>
-
-      <EvidenceFlow
-        steps={[
-          { label: "Evidence", value: `${p.current.evidence.score}/100`, note: `${p.current.evidence.components.length} of 7 sources this cycle` },
-          { label: "Skills", value: `${p.skills.length} assessed`, note: "From tagged work and feedback" },
-          { label: "Gaps", value: p.gaps.length ? `${p.gaps.length} to close` : "None", note: `Against ${nextTitle}` },
-          { label: "Career path", value: `${p.readiness.percent}% ready`, note: p.readiness.nextLevel ? `for ${nextTitle}` : "Top of track" },
-        ]}
-      />
-
-      {showCalibration && p.calib!.flagged && (
-        <div role="alert" className="brutal flex items-start gap-3 border-alert p-4">
-          <FlagDot />
-          <p>
-            Rated <strong className="font-mono">{p.calib!.rating}</strong> by {p.manager?.name}, but the evidence points to about{" "}
-            <strong className="font-mono">{p.calib!.expected}</strong>.{" "}
-            <Link href="/calibration" className="underline underline-offset-4">Review in calibration</Link>
-          </p>
-        </div>
-      )}
 
       <Card>
         <CardHead label={`${p.cycle.name} evidence profile`} title="What the evidence says" right={<span className="font-mono text-3xl font-semibold">{p.current.evidence.score}</span>} />
@@ -97,7 +70,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           <TrendChart
             data={p.history.map((h) => ({ cycle: h.cycle.name, score: h.evidence.score }))}
             series={[{ key: "score", label: "Evidence score" }]}
-            reference={{ value: 75, label: "Promotion bar (75)" }}
           />
           <table className="mt-4 w-full text-sm">
             <caption className="sr-only">Ratings by cycle</caption>
@@ -120,23 +92,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           <BrutalBars layout="vertical" height={260} label="Score" data={p.current.evidence.components.map((c) => ({ name: c.label, value: c.value, tooltip: `${Math.round(c.weight * 100)}% of the score` }))} />
         </Card>
       </div>
-
-      <Card>
-        <CardHead label="Promotion readiness" title={p.readiness.nextLevel ? `Next level: ${nextTitle}` : "Top of track"} right={<span className="font-mono text-3xl font-semibold">{p.readiness.percent}%</span>} />
-        <Meter value={p.readiness.percent} />
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-          {p.readiness.criteria.map((c) => (
-            <li key={c.label} className={`flex items-start gap-3 rounded-md border-2 border-ink px-3 py-2 ${c.met ? "bg-card" : "bg-bg"}`}>
-              <span aria-hidden className={`mt-1 inline-block size-3 shrink-0 border-2 border-ink ${c.met ? "bg-accent" : "bg-card"}`} />
-              <span>
-                <span className="block text-sm font-medium">{c.label}</span>
-                <span className="block text-sm text-muted">{c.met ? "Met" : "Not yet"}: {c.detail}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-sm"><Link href={viewer.id === id ? "/skills" : `/skills?user=${id}`} className="underline underline-offset-4">See skills and gaps</Link></p>
-      </Card>
     </div>
   );
 }
