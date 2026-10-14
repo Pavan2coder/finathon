@@ -1,4 +1,4 @@
-# EvalSense
+# EvalSense- A HR "Stress Reliever"
 
 Evidence over opinion. A performance and promotion app (HRM-05) that puts every rating next to the goals, deliverables and feedback behind it, and flags managers whose scores drift from the evidence.
 
