@@ -12,7 +12,7 @@ const PEOPLE = [
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col lg:pb-14">
       <div className="grid flex-1 lg:grid-cols-[1.25fr_1fr]">
         <section className="grid-paper relative flex flex-col gap-10 border-b-[3px] border-ink p-6 sm:p-10 lg:sticky lg:top-0 lg:h-[calc(100vh-3.5rem)] lg:self-start lg:border-r-[3px] lg:border-b-0 lg:p-14">
           <EchoLogo size="text-4xl" />
@@ -65,7 +65,7 @@ export default function LoginPage() {
         </section>
       </div>
 
-      <div className="flex h-14 items-center overflow-hidden border-t-[3px] border-ink bg-accent text-[#0f1417]" aria-label="Evidence sources">
+      <div className="flex h-14 items-center overflow-hidden lg:fixed lg:inset-x-0 lg:bottom-0 lg:z-20 border-t-[3px] border-ink bg-accent text-[#0f1417]" aria-label="Evidence sources">
         <div className="anim-marquee flex w-max gap-8">
           {[...SOURCES, ...SOURCES].map((s, i) => (
             <span key={i} className="label flex items-center gap-8 whitespace-nowrap" aria-hidden={i >= SOURCES.length}>
