@@ -2,19 +2,19 @@ import { EchoLogo } from "@/components/EchoLogo";
 import { signInAs } from "./actions";
 import { LoginForm } from "./LoginForm";
 
-const SOURCES = ["Goals", "Project outcomes", "Deliverables", "Peer feedback", "Manager feedback", "Skill development", "Attendance", "Training", "Business impact"];
+const SOURCES = ["Goals", "Projects", "Deliverables", "Peer feedback", "Business impact", "Training", "Attendance"];
 
 const PEOPLE = [
-  { role: "employee", name: "Priya Sharma", title: "Senior Engineer", sees: "Her evidence profile, skill gaps and what the next level needs." },
-  { role: "manager", name: "Ravi Kumar", title: "Engineering Manager", sees: "His team's profiles, promotion pipeline and how his ratings compare." },
-  { role: "hr", name: "Elena Rostova", title: "HR Calibration Lead", sees: "Every manager's rating pattern, flagged cases and the audit trail." },
+  { role: "employee", name: "Priya Sharma", title: "Senior Engineer", sees: "Her evidence score and the data behind every number." },
+  { role: "manager", name: "Ravi Kumar", title: "Engineering Manager", sees: "His team's evidence scores next to the ratings he gave." },
+  { role: "hr", name: "Elena Rostova", title: "HR Calibration Lead", sees: "Evidence scores across every department." },
 ] as const;
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col lg:pb-14">
       <div className="grid flex-1 lg:grid-cols-[1.25fr_1fr]">
-        <section className="grid-paper relative flex flex-col justify-between gap-12 border-b-[3px] border-ink p-6 sm:p-10 lg:border-r-[3px] lg:border-b-0 lg:p-14">
+        <section className="grid-paper relative flex flex-col gap-10 border-b-[3px] border-ink p-6 sm:p-10 lg:sticky lg:top-0 lg:h-[calc(100vh-3.5rem)] lg:self-start lg:border-r-[3px] lg:border-b-0 lg:p-14">
           <EchoLogo size="text-4xl" />
           <div>
             <h1 className="font-display text-[clamp(3.5rem,9vw,8rem)] leading-[0.85] tracking-[-0.03em]">
@@ -25,14 +25,14 @@ export default function LoginPage() {
               opinion.
             </h1>
             <p className="mt-8 max-w-[52ch] text-lg leading-relaxed font-light">
-              Every rating sits next to the goals, deliverables and feedback behind it. When a manager&apos;s scores drift from the evidence, you see it before the promotion committee does.
+              Every employee gets a 0–100 score built from seven sources of evidence, with the data rows behind each number one click away.
             </p>
           </div>
           <span aria-hidden className="anim-twinkle pointer-events-none absolute top-16 right-16 text-3xl text-primary">✦</span>
           <span aria-hidden className="anim-twinkle pointer-events-none absolute right-40 bottom-40 text-xl text-primary [animation-delay:1.1s]">✦</span>
         </section>
 
-        <section className="flex flex-col justify-center gap-5 bg-bg p-6 sm:p-10 lg:p-14">
+        <section className="flex flex-col gap-4 bg-bg p-6 sm:p-10 lg:justify-center lg:px-14 lg:py-6">
           <div>
             <h2 className="font-display text-4xl">Sign in</h2>
             <p className="mt-2 text-muted">Use your work email. Demo password: <span className="font-mono">evalsense</span></p>
@@ -65,7 +65,7 @@ export default function LoginPage() {
         </section>
       </div>
 
-      <div className="overflow-hidden border-t-[3px] border-ink bg-accent py-3 text-[#0f1417]" aria-label="Evidence sources">
+      <div className="flex h-14 items-center overflow-hidden lg:fixed lg:inset-x-0 lg:bottom-0 lg:z-20 border-t-[3px] border-ink bg-accent text-[#0f1417]" aria-label="Evidence sources">
         <div className="anim-marquee flex w-max gap-8">
           {[...SOURCES, ...SOURCES].map((s, i) => (
             <span key={i} className="label flex items-center gap-8 whitespace-nowrap" aria-hidden={i >= SOURCES.length}>
