@@ -69,7 +69,7 @@ body {
 /* ---------- neo-brutal primitives ---------- */
 .brutal {
   border: 3px solid var(--ink);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--card);
   box-shadow: var(--shadow);
 }
@@ -86,7 +86,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   border: 3px solid var(--ink);
-  border-radius: 6px;
+  border-radius: 0;
   box-shadow: var(--shadow);
   padding: 0.55rem 1rem;
   font-family: var(--font-mono);
